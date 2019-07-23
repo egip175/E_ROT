@@ -10,4 +10,6 @@ discretion directly from the GUI. Each function is programmed to automatically s
 The program is intended to run on a Mac and cannot run on anything else with the current settings without some modifications, 
 but it would be possible to adapt it fairly easily.
 
+Currently, the MEM and VIS task are under revision and shouldn't be used with the expGUI since there could be unexpected results.
+
 See E_ROT_Manual for a more in depth explanation.

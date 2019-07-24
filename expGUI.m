@@ -22,7 +22,7 @@ function varargout = expGUI(varargin)
 
 % Edit the above text to modify the response to help expGUI
 
-% Last Modified by GUIDE v2.5 10-Jul-2019 09:44:56
+% Last Modified by GUIDE v2.5 24-Jul-2019 09:56:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -167,8 +167,8 @@ set(handles.protocols,'value',1);
 str = get(hObject, 'String');
 val = get(hObject,'Value');
 if val~=1
-    block=str{val}; % gets block name
-    pathFolder=fullfile('_TASKS',block,'protocols');
+    task=str{val}; % gets task's name
+    pathFolder=fullfile('_TASKS',task,'protocols');
 
     info = dir(pathFolder);
     len=size(info);
@@ -305,7 +305,7 @@ if ~isnan(numIt)
         str = get(handles.timeline, 'String');
         val = get(handles.timeline,'Value');
 
-        % if there is, switch to next block
+        % if there is another block, switch to next block
         if val < length(str)
             set(handles.timeline,'Value',val+1);
             numIt_Callback(handles.numIt, eventdata,handles);
@@ -397,22 +397,23 @@ function savePath_Callback(hObject, eventdata, handles)
 
 
 subjName= get(handles.subjName,'string');
-numSet= get(handles.numSet, 'String'); 
 
+numSet= get(handles.numSet, 'String'); 
 
 str = get(handles.timeline, 'String');
 val = get(handles.timeline,'Value');
 a=str{val};
-ind   = strfind(a,filesep);
-% task=a(1:ind-1);
-nameProtocol=a(ind+1:end);
+
+[task,nameProtocol]=fileparts(a);
+nameSet_Callback(handles.nameSet, eventdata,handles);
+nameSet=get(handles.nameSet,'string');
 
 % if it doesn't exist, create the directory for the block
 if ~exist(fullfile(subjName,[subjName,'_',nameProtocol]),'dir')
    mkdir(subjName,[subjName,'_',nameProtocol])
 end
 
- path=fullfile(subjName,[subjName,'_',nameProtocol],[subjName,'_',nameProtocol,'_set',numSet,'.mat']);
+ path=fullfile(subjName,[subjName,'_',nameProtocol],[subjName,'_',nameSet]);
 
     
 set(hObject, 'string',path);
@@ -449,26 +450,23 @@ else
     set(handles.errormsg3,'Visible','off')
     
 savePath_Callback(handles.savePath, eventdata,handles);
-dataPath= get(handles.savePath, 'String');
+savePath= get(handles.savePath, 'String');
 
-subjName= get(handles.subjName,'string');
-
-
-ind   = strfind(a,filesep);
-task=a(1:ind-1);
-protocol=a(ind+1:end);
+nameSet=get(handles.nameSet,'string');
+[task,protocol]=fileparts(a);
 
 if strcmp(task,'RestingState')
-    path=fullfile('_TASKS',task,'protocols',protocol);
+    dataPath=fullfile('_TASKS',task,'protocols',protocol);
 else    
-    path=fullfile('_TASKS',task,'protocols',protocol,[protocol,'_set',numSet,'.mat']);
+    %path=fullfile('_TASKS',task,'protocols',protocol,[protocol,'_set',numSet,'.mat']);
+    dataPath=fullfile('_TASKS',task,'protocols',protocol,nameSet);
 end
-load(path)
+load(dataPath)
 % variables defining function parameters now exist in the space
 
-if isempty(dataPath)==0
+    if isempty(savePath)==0
     
-    if exist(dataPath, 'file') == 2
+    if exist(savePath, 'file') == 2
     q=['The set you selected has been launched already for this subject.'...
         'By proceeding, the data will be overwritten. Do you want to proceed?'];
     answer = questdlg(q,'WARNING: Data already exists', ...
@@ -494,7 +492,7 @@ if isempty(dataPath)==0
                 else
                     [isSetFinished]=MotorTaskFUN(numTargets,numMov,diamTargets,rTargets,centerDim,...
     numSecs,interval,rot,cursorVisible,cursorVisibleWindow,cursorVisibleSpatial,...
-    seqTargets,dirTargets,showCross,playSound,isTest,pauseAfter,pauseAfterTime,dataPath);
+    seqTargets,dirTargets,showCross,playSound,isTest,pauseAfter,pauseAfterTime,savePath);
                 end 
 
             case 'MemTask'
@@ -508,7 +506,7 @@ if isempty(dataPath)==0
                     load(colorPath) % variable colors now exists in the space
                     
                     isSetFinished=MemTaskFUN(seqTargets,diamTargets,rTargets,centerDim,numSecs,...
-                            interval,colorTime,colors,dataPath);
+                            interval,colorTime,colors,savePath);
                 end 
                 
             case 'VisTask'
@@ -518,7 +516,7 @@ if isempty(dataPath)==0
 %                             interval,colorTime,colors,dataPath);
 
                       isSetFinished=VisTaskFUN(seqTargets,diamTargets,rTargets,centerDim,numSecs,...
-                            interval,colorTime,dataPath);
+                            interval,colorTime,savePath);
                         
             case 'RestingState'
                 isSetFinished=1;
@@ -542,6 +540,8 @@ if isempty(dataPath)==0
         
         
     end
+    
+    % psych sometime gives out and error if space isnt cleared
      clear all
 %    clc
 end
@@ -657,10 +657,11 @@ numSet= get(handles.numSet, 'String');
 str = get(handles.timeline, 'String');
 val = get(handles.timeline,'Value');
 a=str{val};
+[task,protocol]=fileparts(a);
 
-ind   = strfind(a,filesep);
-task=a(1:ind-1);
-protocol=a(ind+1:end);
+nameSet_Callback(handles.nameSet, eventdata,handles);
+nameSet=get(handles.nameSet,'string');
+
 
 if strcmp(task,'RestingState')
     set(handles.movementsBox,'Visible','off');  
@@ -668,7 +669,7 @@ if strcmp(task,'RestingState')
     set(handles.numIt,'String','1');
 else
 
-    path=fullfile('_TASKS',task,'protocols',protocol,[protocol,'_set',numSet,'.mat']);
+    path=fullfile('_TASKS',task,'protocols',protocol,nameSet);
     load(path)
 
     if strcmp(task,'MotorTask')
@@ -828,4 +829,48 @@ else
     else
         set(hObject,'Value',~acquisition);
     end
+end
+
+
+
+function nameSet_Callback(hObject, eventdata, handles)
+% hObject    handle to nameSet (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of nameSet as text
+%        str2double(get(hObject,'String')) returns contents of nameSet as a double
+
+numSet= get(handles.numSet, 'String'); 
+
+str = get(handles.timeline, 'String');
+val = get(handles.timeline,'Value');
+a=str{val};
+[task,block]=fileparts(a);
+
+pathFolder=fullfile('_TASKS',task,'protocols',block);
+
+    info = dir(pathFolder);
+    
+    for i=1:length(info)
+    k = strfind(info(i).name,['set',num2str(numSet)]);
+        if ~isempty(k)
+            setName=info(i).name;
+            break
+        end
+    end
+    
+set(hObject,'String',setName)
+
+
+% --- Executes during object creation, after setting all properties.
+function nameSet_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to nameSet (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+s
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end

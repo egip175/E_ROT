@@ -398,7 +398,7 @@ function savePath_Callback(hObject, eventdata, handles)
 
 subjName= get(handles.subjName,'string');
 
-numSet= get(handles.numSet, 'String'); 
+% numSet= get(handles.numSet, 'String'); 
 
 str = get(handles.timeline, 'String');
 val = get(handles.timeline,'Value');
@@ -409,7 +409,9 @@ nameSet_Callback(handles.nameSet, eventdata,handles);
 nameSet=get(handles.nameSet,'string');
 
 % if it doesn't exist, create the directory for the block
-if ~exist(fullfile(subjName,[subjName,'_',nameProtocol]),'dir')
+% (resting state doesn't need a folder cause it has no output)
+if ~exist(fullfile(subjName,[subjName,'_',nameProtocol]),'dir') && ...
+    ~strcmp(task,'RestingState')
    mkdir(subjName,[subjName,'_',nameProtocol])
 end
 
@@ -464,7 +466,7 @@ end
 load(dataPath)
 % variables defining function parameters now exist in the space
 
-    if isempty(savePath)==0
+if isempty(savePath)==0
     
     if exist(savePath, 'file') == 2
     q=['The set you selected has been launched already for this subject.'...
@@ -848,6 +850,9 @@ val = get(handles.timeline,'Value');
 a=str{val};
 [task,block]=fileparts(a);
 
+if strcmp(task,'RestingState')
+    setName=block;
+else
 pathFolder=fullfile('_TASKS',task,'protocols',block);
 
     info = dir(pathFolder);
@@ -859,7 +864,8 @@ pathFolder=fullfile('_TASKS',task,'protocols',block);
             break
         end
     end
-    
+   
+end
 set(hObject,'String',setName)
 
 
@@ -868,7 +874,7 @@ function nameSet_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to nameSet (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-s
+
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))

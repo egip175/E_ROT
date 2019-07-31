@@ -705,6 +705,9 @@ function saveTimeline_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+    p = mfilename('fullpath');
+    f=fileparts(p);
+
 timeline=get(handles.timeline,'string');
     
     % if the timeline is empty
@@ -712,7 +715,7 @@ timeline=get(handles.timeline,'string');
         set(handles.error2,'Visible','on')
     else
         set(handles.error2,'Visible','off');
-        [file,path] = uiputfile('*.mat');
+        [file,path] = uiputfile(fullfile(f,'_timelines','*.mat'),'Save timeline');
         if file ~=0
               save(fullfile(path,file),'timeline')
         end
@@ -733,7 +736,7 @@ function loadTimeline_Callback(hObject, eventdata, handles)
     p = mfilename('fullpath');
     f=fileparts(p);
     
-[file, path]=uigetfile(fullfile(f,'*.mat'),'Select Timeline');
+[file, path]=uigetfile(fullfile(f,'_timelines','*.mat'),'Select Timeline');
 if file ~=0
         load(fullfile(path,file))
         set(handles.timeline,'string',timeline);

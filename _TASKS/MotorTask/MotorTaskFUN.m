@@ -638,7 +638,7 @@ end
 
 data(2,:)=(data(2,:)-xCenter)*(width/screenXpixels);
 data(3,:)=(data(3,:)-yCenter)*(height/screenYpixels)*(-1);   
-    
+ 
 save(dataPath,'data','targetxdistance','targetydistance');
 delete(fullfile(f,'zzz_GetCursorData.mat'));
 delete(filename);

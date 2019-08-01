@@ -22,7 +22,7 @@ function varargout = MotorTaskGUI(varargin)
 
 % Edit the above text to modify the response to help MotorTaskGUI
 
-% Last Modified by GUIDE v2.5 12-Jul-2019 10:18:56
+% Last Modified by GUIDE v2.5 31-Jul-2019 17:16:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -87,7 +87,7 @@ filePath_Callback(handles.filePath, eventdata,handles);
 dataPath= get(handles.filePath, 'String');
 
     numSet= str2double(get(handles.currentSet, 'String')); 
-    numIt = str2double(get(handles.numIterations, 'string'));
+%     numIt = str2double(get(handles.numIterations, 'string'));
 
 if isempty(dataPath)==0
 
@@ -252,7 +252,9 @@ val = get(hObject,'Value');
 
         % defining the strings so i can use fullfile in case it gets used in different OS
         theblock = numProtocol; % this should be called nameProtocol really
-        theset=[theblock,'_set', num2str(numSet)];
+        
+        nameSet_Callback(handles.nameSet, eventdata, handles)
+        theset=get(handles.nameSet,'string');
 
         set(handles.currentSet, 'string', num2str(numSet)); 
         
@@ -303,7 +305,8 @@ function filePath_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of filePath as a double
 
     subjName= get(handles.subjName,'string');
-    numSet= get(handles.currentSet, 'String'); 
+    nameSet_Callback(handles.nameSet, eventdata, handles)
+    theset=get(handles.nameSet,'string');
 
     if (get(handles.training, 'value'))==0
         str = get(handles.protocols, 'String');
@@ -316,7 +319,7 @@ function filePath_Callback(hObject, eventdata, handles)
            mkdir(subjName,[subjName,'_',numProtocol])
         end
 
-        path=fullfile(subjName,[subjName,'_',numProtocol],[subjName,'_',numProtocol,'_set',numSet,'.mat']);
+        path=fullfile(subjName,[subjName,'_',numProtocol],[subjName,'_',theset]);
     
     else %if it's training
         
@@ -1015,8 +1018,11 @@ if (numSet < numIt)
     set(handles.currentSet,'string', num2str(numSet+1)); % get the new set in the iteration
     numSet = get(handles.currentSet, 'string');
 
-    theset=[numProtocol,'_set', num2str(numSet)];
-    protocolPath = fullfile('protocols',numProtocol,[theset,'.mat']);
+%     theset=[numProtocol,'_set', num2str(numSet)];
+    nameSet_Callback(handles.nameSet, eventdata, handles)
+    theset=get(handles.nameSet,'string');
+    
+    protocolPath = fullfile('protocols',numProtocol,theset);
 
 
     load(protocolPath)
@@ -1065,8 +1071,10 @@ if (numSet > 1)
     set(handles.currentSet,'string', num2str(numSet-1)); % get the new set in the iteration
     numSet = get(handles.currentSet, 'string');
 
-    theset=[numProtocol,'_set', num2str(numSet)];
-    protocolPath = fullfile('protocols',numProtocol,[theset,'.mat']);
+    nameSet_Callback(handles.nameSet, eventdata, handles)
+        theset=get(handles.nameSet,'string');
+        
+    protocolPath = fullfile('protocols',numProtocol,theset);
 
 
     load(protocolPath)
@@ -1297,3 +1305,36 @@ else
         set(hObject,'Value',~acquisition);
     end
 end
+
+
+% --- Executes on button press in nameSet.
+function nameSet_Callback(hObject, eventdata, handles)
+% hObject    handle to nameSet (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+str = get(handles.protocols, 'String');
+val = get(handles.protocols,'Value');
+
+numSet= get(handles.currentSet, 'String'); 
+task='MotorTask';
+block=str{val}; % gets protocol name
+
+pathFolder=fullfile('_TASKS',task,'protocols',block);
+
+    info = dir(pathFolder);
+    
+    if length(info)>0
+    
+    for i=1:length(info)
+    k = strfind(info(i).name,['set',num2str(numSet)]);
+        if ~isempty(k)
+            setName=info(i).name;
+            break
+        end
+    end
+    else
+        setName='.mat';
+    end
+   
+set(hObject,'String',setName)

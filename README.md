@@ -8,6 +8,8 @@ The program as it's written is intended to run on a Mac and cannot run on anythi
 
 This program is meant to be used with a NETStation to record EEG signals, although it can be used without utilizing this option. The EEG recording is programmed to start automatically at the beginning of a new block and stops at the end of the block, but can also be started and stopped at the experimenter’s discretion directly from the GUI. Each function is programmed to automatically send an event on target activation.
 
+A few protocols and timelines have already been defined, to give an idea of their implementation. For a quick start, run expGUI and load a pre-defined timeline.
+
 See E_ROT_Manual for a more in depth explanation of the software.
 
 NB: Currently, the MEM and VIS task are under revision and shouldn't be used with the expGUI since there could be unexpected results.

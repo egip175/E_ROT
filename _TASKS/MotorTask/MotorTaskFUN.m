@@ -208,7 +208,8 @@ white = WhiteIndex(screenNumber);
 black = BlackIndex(screenNumber);
 grey = white/2;
 if hide==1
-HideCursor(screenNumber)
+    [indices]=GetMouseIndices;
+    HideCursor(screenNumber,min(indices))
 end
 
 if small==1
@@ -625,12 +626,13 @@ end
 if rot ~= 0   
     % rotation is applied on first target instance
     xc= find(data(4,:) ~=0);
-    xc=xc(1);
-    dataSize=size(data);
-
-    for i=xc:dataSize(2)
-        data(2,i)= ((data(2,i)-xCenter)*cosd(rot) - (data(3,i)-yCenter)*sind(rot))+xCenter;
-        data(3,i)= ((data(2,i)-xCenter)*sind(rot) + (data(3,i)-yCenter)*cosd(rot))+yCenter;       
+    if ~isempty(xc)
+        xc=xc(1);
+        dataSize=size(data);
+        for i=xc:dataSize(2)
+            data(2,i)= ((data(2,i)-xCenter)*cosd(rot) - (data(3,i)-yCenter)*sind(rot))+xCenter;
+            data(3,i)= ((data(2,i)-xCenter)*sind(rot) + (data(3,i)-yCenter)*cosd(rot))+yCenter;       
+        end
     end
 end
 

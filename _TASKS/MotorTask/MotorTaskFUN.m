@@ -471,10 +471,11 @@ for z=1:numMov
      
     drawnow
     [keyIsDown, secs, keyCode] = KbCheck;
-    if stopping == true 
+    if stopping == true || keyIsDown ==1
         isSetFinished=0;
         break       
     end 
+    
      
     col=colorTargetActivated;
     % target = orderTargets(index);
